@@ -5,7 +5,13 @@ import urllib.parse as urlpar
 from bs4 import BeautifulSoup
 #---------------------------------functions---------------------------------
 #parse WebPage to get target links
+#getting a webpage on www.haodf.com
 def webPageGetter(url):
+    '''
+    url: a target url, could be part or a complete path.
+    ---
+    return: a beautiful soup object
+    '''
     host='http://www.haodf.com'
     urlParse=urlpar.urlparse(url)
     if urlParse.netloc== '':
@@ -19,8 +25,13 @@ def webPageGetter(url):
         raise Exception("status_code is {}, unable to retrieve pages".format(webPage.status_code))
     parsedPage=BeautifulSoup(webPage.content, 'html.parser')
     return parsedPage 
-
+### get a list of cities
 def getCities(Page):
+    '''
+    Page: a beautiful soup object
+    ---
+    return a generator of links of cities
+    '''
     cities = Page('div', class_='dis_article_2')[1]
     cityTags = cities('a')
     for city in cityTags:
@@ -29,7 +40,12 @@ def getCities(Page):
         yield name, link
 
 def getHospitals(Page):
-    hospitals=Page('div', class_='dis_article_2')[2]
+    '''
+    Page: a beautiful soup object
+    ---
+    return a generator of links of hospitals
+    '''
+hospitals=Page('div', class_='dis_article_2')[2]
     hospTags=hospitals('a')
     for hospital in hospTags:
         name=hospital.string
@@ -37,7 +53,12 @@ def getHospitals(Page):
         yield name, link
 
 def getPageFromUrl(url):
-    Page = webPageGetter(url)
+    '''
+    Page: a beautiful soup object
+    ---
+    return a generator of links of pages 
+    '''
+Page = webPageGetter(url)
     pageNumbers=Page('div', class_='dis_article_2')[3]
     PageNumberTags=pageNumbers('a')
     for pageNumber in Pages:
@@ -49,6 +70,11 @@ def getPageFromUrl(url):
         yield name, link
 
 def getPatInfo(Page):
+   '''
+   input: a beautiful soup object
+   ---
+   return: a genorator of patient informations
+   '''
     comments=Page('table', class_='doctorjy')
     for comment in comments:
         patInfo=[]
@@ -66,9 +92,4 @@ def getComments(Page):
         yield patComm
 
 
-
-url='http://www.haodf.com/sitemap-tp/p_1'
-page = webPageGetter(url)
-for city,link in getCities(page):
-    print(city,link, sep=':')
 
